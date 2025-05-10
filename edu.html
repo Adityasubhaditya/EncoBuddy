@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enco Buddy - Educational Chatbot</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to right, #a7d1e7, #d0e6f5);
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Floating Books Background */
+        .floating-books {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .book {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: url('https://cdn-icons-png.flaticon.com/512/2232/2232688.png') no-repeat center / contain;
+            opacity: 0.5;
+            animation: floatBook 10s infinite ease-in-out;
+        }
+
+        @keyframes floatBook {
+            0% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+            100% { transform: translateY(0) rotate(0deg); }
+        }
+
+        /* Generate Multiple Books */
+        .book:nth-child(1) { top: 10%; left: 10%; animation-duration: 6s; }
+        .book:nth-child(2) { top: 40%; left: 20%; animation-duration: 8s; }
+        .book:nth-child(3) { top: 70%; left: 30%; animation-duration: 7s; }
+        .book:nth-child(4) { top: 20%; left: 60%; animation-duration: 9s; }
+        .book:nth-child(5) { top: 50%; left: 80%; animation-duration: 5s; }
+
+        .chat-container {
+            max-width: 800px;
+            width: 90%;
+            margin: 20px;
+            background: #f4f5f6;
+            padding: 30px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            border-radius: 20px;
+            animation: fadeIn 0.5s ease-in-out;
+            position: relative;
+            z-index: 10;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .chat-header {
+            font-size: 2.5rem;
+            text-align: center;
+            color: #2962ff;
+            margin-bottom: 30px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-box {
+            height: 400px;
+            overflow-y: auto;
+            border: 1px solid #c5cae9;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            background: #f5f5f5;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-input-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chat-input {
+            width: calc(100% - 120px);
+            padding: 15px;
+            border: 1px solid #c5cae9;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            margin-right: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-input:focus {
+            border-color: #2962ff;
+            outline: none;
+            box-shadow: 0 2px 8px rgba(41, 98, 255, 0.3);
+        }
+
+        .send-btn {
+            width: 110px;
+            padding: 15px;
+            background-color: #2962ff;
+            color: white;
+            border: none;
+            font-size: 1.1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .send-btn:hover {
+            background-color: #1a45b8;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .message {
+            margin: 12px 0;
+            padding: 12px;
+            border-radius: 12px;
+            max-width: 80%;
+            word-wrap: break-word;
+            animation: fadeInMessage 0.3s ease-in-out;
+        }
+
+        @keyframes fadeInMessage {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .user-message {
+            background-color: #b3e5fc;
+            margin-left: auto;
+            text-align: right;
+            color: #1a237e;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .bot-message {
+            background-color: #e0f2f1;
+            margin-right: auto;
+            color: #004d40;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-books">
+        <div class="book"></div>
+        <div class="book"></div>
+        <div class="book"></div>
+        <div class="book"></div>
+        <div class="book"></div>
+    </div>
+
+    <div class="chat-container">
+        <div class="chat-header">📚 Enco Buddy - Educational Chatbot</div>
+        <div class="chat-box" id="chat-box"></div>
+        <div class="chat-input-container">
+            <input type="text" class="chat-input" id="chat-input" placeholder="Ask me anything..." />
+            <button class="send-btn" onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        async function sendMessage() {
+            const chatBox = document.getElementById('chat-box');
+            const chatInput = document.getElementById('chat-input');
+            const userMessage = chatInput.value;
+
+            if (userMessage.trim() === "") return;
+
+            chatBox.innerHTML += `<div class="message user-message"><strong>You:</strong> ${userMessage}</div>`;
+            chatInput.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            setTimeout(() => {
+                chatBox.innerHTML += `<div class="message bot-message"><strong>Enco Buddy:</strong> Thinking...</div>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }, 2000);
+        }
+
+        document.getElementById('chat-input').addEventListener('keydown', function (event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
